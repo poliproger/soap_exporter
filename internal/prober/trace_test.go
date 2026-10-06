@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptrace"
 	"testing"
+	"testing/synctest"
 	"time"
 
 	"github.com/poliproger/soap_exporter/internal/result"
@@ -306,5 +307,52 @@ func TestTracerInformationalLimit(t *testing.T) {
 	ct.GetConn("example.com:80")
 	if err := ct.Got1xxResponse(http.StatusEarlyHints, nil); err != nil {
 		t.Errorf("1xx response of the next round trip: %v", err)
+	}
+}
+
+// TestTracerWaitWrote: net/http may report the written request after the response was read,
+// as when the server answered before reading the whole request.
+func TestTracerWaitWrote(t *testing.T) {
+	const ms = time.Millisecond
+	tests := []struct {
+		name     string
+		gotConn  bool
+		wroteIn  time.Duration // when WroteRequest fires; 0 never
+		wantWait time.Duration
+	}{
+		{name: "late report", gotConn: true, wroteIn: 10 * ms, wantWait: 10 * ms},
+		{name: "no report", gotConn: true, wantWait: maxWriteWait},
+		{name: "no connection", wantWait: 0},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			synctest.Test(t, func(t *testing.T) {
+				tr := newTracer(time.Now)
+				ct := tr.clientTrace()
+				ct.GetConn("example.com:80")
+				if tt.gotConn {
+					ct.GotConn(httptrace.GotConnInfo{})
+				}
+				ct.GotFirstResponseByte()
+				tr.bodyDone()
+				if tt.wroteIn > 0 {
+					go func() {
+						time.Sleep(tt.wroteIn)
+						ct.WroteRequest(httptrace.WroteRequestInfo{})
+					}()
+				}
+				start := time.Now()
+				tr.waitWrote()
+				if got := time.Since(start); got != tt.wantWait {
+					t.Errorf("waited %v, want %v", got, tt.wantWait)
+				}
+				if tt.wroteIn > 0 {
+					want := map[result.Phase]time.Duration{result.PhaseProcessing: 0, result.PhaseTransfer: 0}
+					if got := tr.phases(); !maps.Equal(got, want) {
+						t.Errorf("phases() = %v, want %v", got, want)
+					}
+				}
+			})
+		})
 	}
 }

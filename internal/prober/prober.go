@@ -185,6 +185,7 @@ func (p *Prober) Probe(ctx context.Context) (r result.Result) {
 		if r.End.IsZero() {
 			r.End = time.Now()
 		}
+		tr.waitWrote()
 		r.Phases = tr.phases()
 	}()
 	p.probe(ctx, tr, &r)

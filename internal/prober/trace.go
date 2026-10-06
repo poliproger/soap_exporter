@@ -12,6 +12,10 @@ import (
 	"github.com/poliproger/soap_exporter/internal/result"
 )
 
+// maxWriteWait bounds how long phases wait for net/http to report that the request was
+// written, the same bound net/http uses before it reuses a connection.
+const maxWriteWait = 50 * time.Millisecond
+
 // maxInformational bounds the 1xx responses accepted before the final response: with a
 // Got1xxResponse hook, net/http leaves limiting them to the caller.
 const maxInformational = 5
@@ -42,6 +46,11 @@ type trip struct {
 	informational     int       // 1xx responses received
 	headers           time.Time // the final response headers arrived
 	bodyDone          time.Time
+	written           chan struct{} // closed when wrote is set
+}
+
+func newTrip() *trip {
+	return &trip{written: make(chan struct{})}
 }
 
 // responseStart returns when the final response started to arrive, zero if it did not. After
@@ -72,7 +81,7 @@ func (t *tracer) update(fn func(rt *trip, now time.Time)) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	if len(t.trips) == 0 {
-		t.trips = append(t.trips, &trip{})
+		t.trips = append(t.trips, newTrip())
 	}
 	fn(t.trips[len(t.trips)-1], now)
 }
@@ -88,7 +97,7 @@ func (t *tracer) clientTrace() *httptrace.ClientTrace {
 		GetConn: func(string) {
 			t.mu.Lock()
 			defer t.mu.Unlock()
-			t.trips = append(t.trips, &trip{})
+			t.trips = append(t.trips, newTrip())
 		},
 		DNSStart: func(httptrace.DNSStartInfo) {
 			t.update(func(rt *trip, now time.Time) { setOnce(&rt.dnsStart, now) })
@@ -121,7 +130,12 @@ func (t *tracer) clientTrace() *httptrace.ClientTrace {
 			t.update(func(rt *trip, now time.Time) { setOnce(&rt.gotConn, now) })
 		},
 		WroteRequest: func(httptrace.WroteRequestInfo) {
-			t.update(func(rt *trip, now time.Time) { setOnce(&rt.wrote, now) })
+			t.update(func(rt *trip, now time.Time) {
+				if rt.wrote.IsZero() {
+					rt.wrote = now
+					close(rt.written)
+				}
+			})
 		},
 		GotFirstResponseByte: func() {
 			t.update(func(rt *trip, now time.Time) { setOnce(&rt.firstByte, now) })
@@ -148,6 +162,28 @@ func (t *tracer) gotResponse() {
 // bodyDone records that reading the response body ended.
 func (t *tracer) bodyDone() {
 	t.update(func(rt *trip, now time.Time) { rt.bodyDone = now })
+}
+
+// waitWrote waits up to maxWriteWait for the current round trip, if it got a connection, to
+// report that its request was written. net/http reports it from its write goroutine after the
+// last flush; when the server answers before reading the whole request, the response may be
+// read to the end before that goroutine gets to it, and the request seems never written.
+func (t *tracer) waitWrote() {
+	t.mu.Lock()
+	var written <-chan struct{}
+	if n := len(t.trips); n > 0 && !t.trips[n-1].gotConn.IsZero() {
+		written = t.trips[n-1].written
+	}
+	t.mu.Unlock()
+	if written == nil {
+		return
+	}
+	timer := time.NewTimer(maxWriteWait)
+	defer timer.Stop()
+	select {
+	case <-written:
+	case <-timer.C:
+	}
 }
 
 // phases sums the durations of the phases that happened over all round trips; nil if none
