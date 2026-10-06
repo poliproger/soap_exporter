@@ -15,8 +15,8 @@
 
 services:
   soap-exporter:
-    # Pin a release in production, e.g. ghcr.io/poliproger/soap_exporter:1.0.0.
-    image: ghcr.io/poliproger/soap_exporter:latest
+    # Pin a release in production, e.g. ghcr.io/poliproger/soap-exporter:1.0.0.
+    image: ghcr.io/poliproger/soap-exporter:latest
     command:
       - --config.file=/etc/soap_exporter/config.yml
       # POST /-/reload, PUT /-/log-level and POST /debug/probe. Anyone who can reach port

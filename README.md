@@ -94,7 +94,7 @@ targets:
 
 ```console
 docker run --rm --name soap_exporter -p 10057:10057 -v "$PWD:/etc/soap_exporter:ro" \
-  ghcr.io/poliproger/soap_exporter:latest
+  ghcr.io/poliproger/soap-exporter:latest
 ```
 
 The image reads `/etc/soap_exporter/config.yml`. Images are published for every release

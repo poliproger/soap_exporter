@@ -1,5 +1,5 @@
 BINARY      := soap_exporter
-IMAGE       ?= ghcr.io/poliproger/soap_exporter
+IMAGE       ?= ghcr.io/poliproger/soap-exporter
 VERSION_PKG := github.com/prometheus/common/version
 
 VERSION    ?= $(patsubst v%,%,$(or $(shell git describe --tags --match 'v*' --always --dirty 2>/dev/null),dev))

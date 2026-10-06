@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  IMAGE: ghcr.io/poliproger/soap_exporter
+  IMAGE: ghcr.io/poliproger/soap-exporter
 
 jobs:
   image:
