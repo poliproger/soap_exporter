@@ -1,0 +1,6 @@
+# want: target "orders": max_response_size: must be positive
+targets:
+  - name: orders
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    max_response_size: 0

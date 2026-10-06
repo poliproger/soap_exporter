@@ -1,0 +1,7 @@
+# want: target "orders": proxy_url: invalid URL: invalid port after host
+# reject: s3cret
+targets:
+  - name: orders
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    proxy_url: http://monitor:s3cret@proxy.corp.example:https/

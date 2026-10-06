@@ -1,0 +1,4 @@
+# want: target "orders": url: required
+targets:
+  - name: orders
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'

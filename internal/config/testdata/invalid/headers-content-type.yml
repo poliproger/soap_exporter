@@ -1,0 +1,7 @@
+# want: target "orders": headers.Content-Type: not allowed: derived from soap.version and soap.action
+targets:
+  - name: orders
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    headers:
+      Content-Type: text/xml

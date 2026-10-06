@@ -1,0 +1,38 @@
+# VCS and CI
+.git
+.github
+.gitignore
+
+# Build and lint files that the image build does not read
+.dockerignore
+Dockerfile
+Makefile
+.golangci.yml
+
+# Docs
+docs
+*.md
+LICENSE
+
+# IDE and OS files
+.idea
+.vscode
+*.iml
+*.swp
+.DS_Store
+
+# Local Claude Code files
+.claude
+.mcp.json
+.local
+
+# Build outputs
+/soap_exporter
+dist
+*.out
+*.test
+coverage.*
+
+# Tests are not compiled into the binary
+**/*_test.go
+**/testdata

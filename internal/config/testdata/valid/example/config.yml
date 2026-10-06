@@ -1,0 +1,90 @@
+# Plan §5.1, extended to exercise the merge rules. Relative paths resolve against this
+# directory; only body_file and the keytab are read at load.
+defaults:
+  interval: 1m
+  timeout: 10s
+  labels:
+    system: core
+  headers:
+    X-Request-Source: monitoring
+  kerberos:
+    principal: monitor@CORP.EXAMPLE
+    keytab: monitor.keytab
+  tls_config:
+    ca_file: certs/corp-root.pem
+    min_version: TLS12
+  expect:
+    not_regex:
+      - "ORA-\\d{5}"
+
+targets:
+  - name: branches-load
+    url: http://core.corp.example/CoreService.asmx
+    interval: 5m
+    timeout: 30s
+    labels:
+      team: core-banking
+    soap:
+      version: "1.1"
+      action: http://tempuri.org/LoadBranches
+    body_file: requests/load-branches.xml
+    kerberos:
+      spn: HTTP/core-alias.corp.example    # merged with defaults.kerberos
+    expect:
+      status: [200]
+      namespaces:
+        # ASMX DataSet rows live in the DataSet's own namespace (plan finding 9)
+        ds: http://tempuri.org/BranchesDataset.xsd
+      xpath:
+        - "//ds:Branches[ds:Id = '1']"
+
+  - name: orders-status
+    url: https://orders.corp.example:8443/Orders.svc
+    labels:
+      team: payments
+      release: 1.10                        # a string, not the number 1.1
+    soap:
+      version: 1.2                         # unquoted
+      action: http://corp.example/IOrders/GetStatus
+    body: |
+      <s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope">
+        <s:Body><GetStatus xmlns="http://corp.example/"/></s:Body>
+      </s:Envelope>
+    headers:
+      X-Api-Version: 2.0
+    kerberos: null                         # drop the inherited Kerberos block
+    basic_auth:
+      username: monitor
+      password_file: secrets/orders-password
+    tls_config:
+      cert_file: certs/monitor.pem
+      key_file: certs/monitor.key
+    proxy_url: http://proxy.corp.example:3128
+    max_response_size: 4MiB
+    expect:
+      namespaces:
+        o: http://corp.example/
+      xpath:
+        - "count(//o:Order) > 0"
+      not_xpath:
+        - "//o:Status[. = 'Maintenance']"
+      not_regex:                           # replaces the inherited list
+        - "Exception"
+      headers:
+        - name: Content-Type
+          regex: "^application/soap\\+xml"
+
+  - name: inventory
+    url: http://inventory.corp.example:8080/Inventory.asmx
+    soap:
+      action: http://tempuri.org/Ping
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    headers:
+      X-Request-Source: null               # drop an inherited header
+      User-Agent: inventory-probe/1.0
+    max_response_size: 512KiB
+    expect:
+      status: [200, 202]
+      allow_soap_fault: true
+      xpath:
+        - "/soap:Envelope/soap:Body"

@@ -1,0 +1,11 @@
+# Nothing but the required fields: every other value is a built-in default.
+targets:
+  - name: minimal
+    url: http://soap.example.com/Service.asmx
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+
+  # An unset timeout is 10s, but at most the interval.
+  - name: fast
+    url: https://soap.example.com/Service.svc
+    interval: 5s
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'

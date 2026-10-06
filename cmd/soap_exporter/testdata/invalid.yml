@@ -1,0 +1,9 @@
+# Two errors: the timeout of orders exceeds its interval, and branches has no URL.
+targets:
+  - name: orders
+    url: http://orders.example.com/Orders.asmx
+    interval: 1m
+    timeout: 2m
+    body_file: request.xml
+  - name: branches
+    body_file: request.xml

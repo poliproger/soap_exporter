@@ -1,0 +1,34 @@
+# HELP soap_probe_duration_seconds Total duration of probes that received an HTTP response.
+# TYPE soap_probe_duration_seconds histogram
+soap_probe_duration_seconds_bucket{target="core",le="0.01"} 2
+soap_probe_duration_seconds_bucket{target="core",le="0.025"} 2
+soap_probe_duration_seconds_bucket{target="core",le="0.05"} 2
+soap_probe_duration_seconds_bucket{target="core",le="0.1"} 2
+soap_probe_duration_seconds_bucket{target="core",le="0.25"} 2
+soap_probe_duration_seconds_bucket{target="core",le="0.5"} 3
+soap_probe_duration_seconds_bucket{target="core",le="1"} 3
+soap_probe_duration_seconds_bucket{target="core",le="2.5"} 4
+soap_probe_duration_seconds_bucket{target="core",le="5"} 4
+soap_probe_duration_seconds_bucket{target="core",le="10"} 4
+soap_probe_duration_seconds_bucket{target="core",le="30"} 4
+soap_probe_duration_seconds_bucket{target="core",le="60"} 4
+soap_probe_duration_seconds_bucket{target="core",le="+Inf"} 5
+soap_probe_duration_seconds_sum{target="core"} 77.815
+soap_probe_duration_seconds_count{target="core"} 5
+# HELP soap_probes_total Probes by result: success or the failure reason.
+# TYPE soap_probes_total counter
+soap_probes_total{result="auth",target="core"} 0
+soap_probes_total{result="body_too_large",target="core"} 0
+soap_probes_total{result="connect",target="core"} 0
+soap_probes_total{result="dns",target="core"} 0
+soap_probes_total{result="header",target="core"} 0
+soap_probes_total{result="http",target="core"} 0
+soap_probes_total{result="internal",target="core"} 0
+soap_probes_total{result="invalid_envelope",target="core"} 0
+soap_probes_total{result="regex",target="core"} 0
+soap_probes_total{result="soap_fault",target="core"} 1
+soap_probes_total{result="status",target="core"} 0
+soap_probes_total{result="success",target="core"} 4
+soap_probes_total{result="timeout",target="core"} 1
+soap_probes_total{result="tls",target="core"} 0
+soap_probes_total{result="xpath",target="core"} 0

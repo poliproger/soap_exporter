@@ -1,0 +1,26 @@
+# HELP soap_probe_failure_reason Failure reason of the last probe; absent while the target is healthy.
+# TYPE soap_probe_failure_reason gauge
+soap_probe_failure_reason{reason="internal",target="core"} 1
+# HELP soap_probe_http_status_code HTTP status code of the last probe, 0 if there was no response.
+# TYPE soap_probe_http_status_code gauge
+soap_probe_http_status_code{target="core"} 0
+# HELP soap_probe_success Whether the last probe passed all checks.
+# TYPE soap_probe_success gauge
+soap_probe_success{target="core"} 0
+# HELP soap_probes_total Probes by result: success or the failure reason.
+# TYPE soap_probes_total counter
+soap_probes_total{result="auth",target="core"} 0
+soap_probes_total{result="body_too_large",target="core"} 0
+soap_probes_total{result="connect",target="core"} 0
+soap_probes_total{result="dns",target="core"} 0
+soap_probes_total{result="header",target="core"} 0
+soap_probes_total{result="http",target="core"} 0
+soap_probes_total{result="internal",target="core"} 1
+soap_probes_total{result="invalid_envelope",target="core"} 0
+soap_probes_total{result="regex",target="core"} 0
+soap_probes_total{result="soap_fault",target="core"} 0
+soap_probes_total{result="status",target="core"} 0
+soap_probes_total{result="success",target="core"} 0
+soap_probes_total{result="timeout",target="core"} 0
+soap_probes_total{result="tls",target="core"} 0
+soap_probes_total{result="xpath",target="core"} 0

@@ -1,0 +1,8 @@
+# want: target "orders": tls_config: at most one of ca, ca_file & ca_ref must be configured
+targets:
+  - name: orders
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    tls_config:
+      ca: inline
+      ca_file: ca.pem

@@ -1,0 +1,9 @@
+# want: target "orders": expect.headers[0].not_regex: error parsing regexp: missing closing ): `(html`
+targets:
+  - name: orders
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    expect:
+      headers:
+        - name: Content-Type
+          not_regex: (html

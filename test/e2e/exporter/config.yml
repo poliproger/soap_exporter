@@ -1,0 +1,68 @@
+# soap_exporter configuration of the end-to-end smoke test (test/e2e), mounted at
+# /etc/soap_exporter. The hosts are compose service names; run.sh asserts the results.
+
+defaults:
+  # Short, so that every target has a result a few seconds after the start: the first probe
+  # of a target comes after a random delay of up to one interval.
+  interval: 5s
+  timeout: 4s
+  labels:
+    team: e2e
+  expect:
+    namespaces:
+      e: http://example.com/soap
+
+targets:
+  # SOAP 1.1 without authentication.
+  - name: plain
+    url: http://mocksoap:8080/soap11
+    soap:
+      action: http://example.com/soap/Ping
+    body_file: requests/ping.xml
+    expect:
+      xpath:
+        - "//e:PingResult = 'OK'"
+
+  # SOAP 1.1 behind SPNEGO. kerberos.spn is not set, so the exporter derives HTTP/mocksoap
+  # from the URL (plan D5): the service is called under the host name its SPN is
+  # registered for. The keytabs come from the KDC through the volume keytabs.
+  - name: kerberos
+    url: http://mocksoap:8080/kerberos
+    soap:
+      action: http://example.com/soap/Ping
+    body_file: requests/ping.xml
+    kerberos:
+      principal: monitor@CORP.EXAMPLE
+      keytab: /keytabs/monitor.keytab
+    expect:
+      xpath:
+        - "//e:PingResult = 'OK'"
+        # The mock names the client principal it authenticated.
+        - "//e:Client = 'monitor@CORP.EXAMPLE'"
+
+  # SOAP 1.2: the action travels in the Content-Type.
+  - name: soap12
+    url: http://mocksoap:8080/soap12
+    soap:
+      version: "1.2"
+      action: http://example.com/soap/GetStatus
+    body: |
+      <?xml version="1.0" encoding="utf-8"?>
+      <env:Envelope xmlns:env="http://www.w3.org/2003/05/soap-envelope">
+        <env:Body>
+          <GetStatus xmlns="http://example.com/soap"/>
+        </env:Body>
+      </env:Envelope>
+    expect:
+      headers:
+        - name: Content-Type
+          regex: '^application/soap\+xml'
+      xpath:
+        - "//e:Status = 'Running'"
+
+  # Always answers with a SOAP Fault: run.sh expects a failure with reason soap_fault.
+  - name: fault
+    url: http://mocksoap:8080/fault
+    soap:
+      action: http://example.com/soap/Ping
+    body_file: requests/ping.xml

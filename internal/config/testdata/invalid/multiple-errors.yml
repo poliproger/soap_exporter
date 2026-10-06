@@ -1,0 +1,20 @@
+# want: target "a": interval: must be positive
+# want: target "a": labels.job: reserved label name
+# want: target "a": expect.status[0]: 99 is not an HTTP status code (100-599)
+# want: target "b": expect.regex[0]: error parsing regexp: missing closing ]: `[`
+# want: target "b": max_response_size: invalid size "lots"
+targets:
+  - name: a
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    interval: 0s
+    labels:
+      job: x
+    expect:
+      status: [99]
+  - name: b
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    max_response_size: lots
+    expect:
+      regex: ['[']

@@ -1,0 +1,27 @@
+# Adds audit with a new credential and broken, whose keytab the fake backend rejects.
+defaults:
+  interval: 1h
+  timeout: 10s
+  kerberos:
+    principal: monitor@CORP.EXAMPLE
+    keytab: monitor.keytab
+
+targets:
+  - name: orders
+    url: {{.URL}}/negotiate
+    body_file: request.xml
+  - name: billing
+    url: {{.URL}}/negotiate
+    body_file: request.xml
+  - name: audit
+    url: {{.URL}}/negotiate
+    body_file: request.xml
+    kerberos:
+      principal: audit@CORP.EXAMPLE
+      keytab: audit.keytab
+  - name: broken
+    url: {{.URL}}/negotiate
+    body_file: request.xml
+    kerberos:
+      principal: broken@CORP.EXAMPLE
+      keytab: broken.keytab

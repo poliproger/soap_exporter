@@ -1,0 +1,34 @@
+# Targets of the web tests. The second name is hostile on purpose: target names may
+# contain any printable text and must be escaped on every page.
+targets:
+  - name: orders
+    url: https://orders.example.com/Orders.svc
+    interval: 5m
+    timeout: 30s
+    labels:
+      team: payments
+    soap:
+      version: "1.2"
+      action: http://example.com/IOrders/GetStatus
+    body: '<s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope"><s:Body/></s:Envelope>'
+    basic_auth:
+      username: monitor
+      password: orders-pw-s3cret
+    # Secret headers belong in http_headers (plan 5.2); /config redacts them here as well.
+    headers:
+      Proxy-Authorization: Basic cHJveHk6cHJveHktczNjcmV0
+      Cookie: session=c00kie-s3cret
+      X-Client: soap-exporter-test
+    # Header checks quote the values they got in their messages.
+    expect:
+      headers:
+        - name: Set-Cookie
+          not_regex: SessionId
+        - name: WWW-Authenticate
+          regex: ^Basic
+        - name: Content-Type
+          regex: ^text/xml
+
+  - name: '<script>alert("name")</script>&target=orders'
+    url: http://hostile.example.com/Service.asmx
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'

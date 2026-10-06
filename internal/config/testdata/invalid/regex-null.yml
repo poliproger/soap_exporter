@@ -1,0 +1,11 @@
+# want: target "orders": expect.regex[0]: want a regular expression, got null
+# want: target "orders": expect.not_regex[0]: want a regular expression, got null
+targets:
+  - name: orders
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    expect:
+      regex: [null]
+      not_regex:
+        -
+        - Exception

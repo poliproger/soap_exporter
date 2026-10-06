@@ -1,0 +1,5 @@
+# want: target "orders": body: invalid request: 
+targets:
+  - name: orders
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope'

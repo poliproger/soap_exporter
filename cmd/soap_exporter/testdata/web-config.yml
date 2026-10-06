@@ -1,0 +1,4 @@
+# An exporter-toolkit web configuration without TLS or users.
+http_server_config:
+  headers:
+    X-Frame-Options: deny

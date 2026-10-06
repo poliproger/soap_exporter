@@ -1,0 +1,16 @@
+# Two plain targets. The long interval keeps scheduled probes out of the way.
+defaults:
+  interval: 1h
+  timeout: 10s
+  soap:
+    action: http://example.com/Ping
+
+targets:
+  - name: orders
+    url: {{.URL}}/ok
+    body_file: request.xml
+    labels:
+      team: payments
+  - name: branches
+    url: {{.URL}}/ok
+    body_file: request.xml

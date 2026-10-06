@@ -1,0 +1,4 @@
+# Not an exporter-toolkit web configuration.
+tls_server_config:
+  cert_file: server.crt
+unknown_field: true

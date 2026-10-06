@@ -1,0 +1,4 @@
+# want: target "orders": body: one of body and body_file is required
+targets:
+  - name: orders
+    url: https://orders.corp.example/Orders.svc

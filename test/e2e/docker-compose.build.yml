@@ -1,0 +1,8 @@
+# Added by run.sh unless SOAP_EXPORTER_IMAGE is set: builds the exporter image from the
+# repository Dockerfile and tags it as SOAP_EXPORTER_IMAGE.
+services:
+  exporter:
+    build:
+      context: ../..
+      args:
+        VERSION: e2e

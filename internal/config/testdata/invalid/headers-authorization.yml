@@ -1,0 +1,8 @@
+# want: target "orders": headers.AUTHORIZATION: not allowed: set by the auth settings
+# reject: s3cret
+targets:
+  - name: orders
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    headers:
+      AUTHORIZATION: Bearer s3cret

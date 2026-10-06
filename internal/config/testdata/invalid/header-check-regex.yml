@@ -1,0 +1,8 @@
+# want: target "orders": expect.headers[0]: one of regex and not_regex is required
+targets:
+  - name: orders
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    expect:
+      headers:
+        - name: Content-Type

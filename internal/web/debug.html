@@ -1,0 +1,144 @@
+{{/* Debug pages. html/template escapes every value; target-controlled text is untrusted. */}}
+
+{{define "head"}}<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{.Title}}</title>
+<style>{{stylesheet}}</style>
+</head>
+<body>
+<header><a href="/">soap_exporter</a><a href="/debug/probes">Probe history</a><a href="/config">Configuration</a><a href="/metrics">Metrics</a></header>
+<main>
+{{end}}
+
+{{define "foot"}}</main>
+</body>
+</html>
+{{end}}
+
+{{define "probes"}}{{template "head" .}}
+<h1>Probe history</h1>
+<p>
+{{- if .Filter}}<a href="/debug/probes">All targets</a> · <a href="/debug/probes?target={{.Filter}}&amp;format=json">JSON</a>
+{{- else}}<a href="/debug/probes?format=json">JSON</a>{{end -}}
+</p>
+{{range .Targets}}
+<section>
+<h2><a href="/debug/probes?target={{.Target.Name}}">{{.Target.Name}}</a></h2>
+{{template "target" .}}
+{{- if $.Lifecycle}}
+<form method="post" action="/debug/probe?target={{.Target.Name}}"><button type="submit">Probe now</button></form>
+{{- end}}
+{{if .Results -}}
+<table>
+<thead><tr><th>Time</th><th>Duration</th><th>Result</th><th>HTTP status</th><th>Body size</th><th>Message</th></tr></thead>
+{{- range .Results}}
+<tbody>
+<tr><td>{{ts .Start}}</td><td>{{elapsed .}}</td><td>{{template "outcome" .}}</td><td>{{template "status" .}}</td><td>{{.BodySize}} B</td><td class="message">{{.Message}}</td></tr>
+<tr class="details"><td colspan="6"><details><summary>Details</summary>{{template "details" .}}</details></td></tr>
+</tbody>
+{{- end}}
+</table>
+{{- else if $.HistoryDisabled -}}
+<p>Probe history is disabled (--history.limit=0).</p>
+{{- else -}}
+<p>No probes recorded yet.</p>
+{{- end}}
+</section>
+{{else}}
+<p>No targets configured.</p>
+{{end}}
+{{template "foot" .}}{{end}}
+
+{{define "report"}}{{template "head" .}}
+<h1>Probe of {{.Name}}</h1>
+<p><a href="/debug/probes?target={{.Name}}">History of this target</a></p>
+{{if .Target}}{{template "target" .}}{{end}}
+{{with .Result -}}
+<h2>Result</h2>
+<dl class="meta">
+<dt>Result</dt><dd>{{template "outcome" .}}</dd>
+{{- with .Message}}
+<dt>Message</dt><dd>{{.}}</dd>
+{{- end}}
+<dt>Time</dt><dd>{{ts .Start}}</dd>
+<dt>Duration</dt><dd>{{elapsed .}}</dd>
+<dt>HTTP status</dt><dd>{{template "status" .}}</dd>
+<dt>Body size</dt><dd>{{.BodySize}} B</dd>
+</dl>
+{{template "details" .}}
+{{- end}}
+{{template "foot" .}}{{end}}
+
+{{define "target"}}<dl class="meta">
+<dt>URL</dt><dd>{{.URL}}</dd>
+<dt>SOAP</dt><dd>{{.Target.SOAP.Version}}{{with .Target.SOAP.Action}}, action <code>{{.}}</code>{{end}}</dd>
+<dt>Auth</dt><dd>{{.Target.AuthType}}</dd>
+<dt>Interval</dt><dd>{{.Target.Interval}}, timeout {{.Target.Timeout}}</dd>
+{{- with .Target.Labels}}
+<dt>Labels</dt><dd>{{range $name, $value := .}}<code>{{$name}}="{{$value}}"</code> {{end}}</dd>
+{{- end}}
+</dl>{{end}}
+
+{{define "outcome"}}{{if .Success}}<span class="ok">success</span>{{else}}<span class="fail">{{with .Reason}}{{.}}{{else}}failure{{end}}</span>{{end}}{{end}}
+
+{{define "status"}}{{if .GotResponse}}{{.HTTPStatus}}{{else}}none{{end}}{{end}}
+
+{{define "details"}}
+{{- if or .SPN .Charset .TLS}}
+<dl class="meta">
+{{- with .SPN}}
+<dt>SPN</dt><dd>{{.}}</dd>
+{{- end}}
+{{- with .Charset}}
+<dt>Charset</dt><dd>{{.}}</dd>
+{{- end}}
+{{- with .TLS}}
+<dt>TLS</dt><dd>{{.Version}}, {{.CipherSuite}}{{with .ServerName}}, server name {{.}}{{end}}</dd>
+{{- end}}
+</dl>
+{{- end}}
+{{- with phases .Phases}}
+<h3>Phases</h3>
+<table>
+{{- range .}}
+<tr><th>{{.Phase}}</th><td>{{duration .Duration}}</td></tr>
+{{- end}}
+</table>
+{{- end}}
+{{- with .Checks}}
+<h3>Checks</h3>
+<table>
+<thead><tr><th>Check</th><th>Result</th><th>Reason</th><th>Message</th></tr></thead>
+{{- range .}}
+<tr><td><code>{{.Name}}</code></td><td>{{if .Passed}}<span class="ok">pass</span>{{else}}<span class="fail">fail</span>{{end}}</td><td>{{.Reason}}</td><td class="message">{{.Message}}</td></tr>
+{{- end}}
+</table>
+{{- end}}
+{{- with .TLS}}{{with .Chain}}
+<h3>Certificate chain</h3>
+<table>
+<thead><tr><th>Subject</th><th>Issuer</th><th>Not before</th><th>Not after</th><th>DNS names</th></tr></thead>
+{{- range .}}
+<tr><td>{{.Subject}}</td><td>{{.Issuer}}</td><td>{{ts .NotBefore}}</td><td>{{ts .NotAfter}}</td><td>{{join .DNSNames ", "}}</td></tr>
+{{- end}}
+</table>
+{{- end}}{{end}}
+{{- with headers .ResponseHeader}}
+<h3>Response headers</h3>
+<table>
+{{- range .}}
+<tr><th>{{.Name}}</th><td class="message">{{.Value}}</td></tr>
+{{- end}}
+</table>
+{{- end}}
+{{- if .Body}}
+<h3>Body{{if .BodyTruncated}} (truncated){{end}}</h3>
+<pre>{{.Body}}</pre>
+{{- end}}
+{{- if not (or .SPN .Charset .TLS .Phases .Checks .ResponseHeader .Body)}}
+<p>No further details.</p>
+{{- end}}
+{{end}}

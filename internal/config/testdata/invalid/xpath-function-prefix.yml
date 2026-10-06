@@ -1,0 +1,9 @@
+# want: target "orders": expect.xpath[0]: prefixed function name o:count is not supported
+targets:
+  - name: orders
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    expect:
+      namespaces:
+        o: http://corp.example/
+      xpath: ['o:count(//o:Order) > 0']

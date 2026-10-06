@@ -1,0 +1,7 @@
+# want: target "orders": timeout: 1m exceeds the interval 30s
+targets:
+  - name: orders
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    interval: 30s
+    timeout: 1m

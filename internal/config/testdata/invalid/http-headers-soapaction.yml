@@ -1,0 +1,8 @@
+# want: target "orders": http_headers.SOAPAction: not allowed: derived from soap.version and soap.action
+targets:
+  - name: orders
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    http_headers:
+      SOAPAction:
+        values: [urn:x]

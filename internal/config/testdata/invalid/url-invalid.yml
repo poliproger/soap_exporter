@@ -1,0 +1,6 @@
+# want: target "orders": url: invalid URL: invalid port
+# reject: s3cret
+targets:
+  - name: orders
+    url: https://monitor:s3cret@orders.corp.example:https/
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'

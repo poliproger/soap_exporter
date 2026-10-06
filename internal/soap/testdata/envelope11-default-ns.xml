@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/">
+  <Body>
+    <m:GetStatusResponse xmlns:m="urn:example:status">
+      <m:GetStatusResult>OK</m:GetStatusResult>
+    </m:GetStatusResponse>
+  </Body>
+</Envelope>

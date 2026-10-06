@@ -1,0 +1,9 @@
+# want: target "orders": labels.instance: reserved label name
+# want: target "orders": labels.le: reserved label name
+targets:
+  - name: orders
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    labels:
+      instance: orders-1
+      le: x

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope" xmlns:o="http://corp.example/">
+  <s:Header/>
+  <s:Body>
+    <o:GetStatusResponse>
+      <o:Order><o:Id>7</o:Id><o:Status>Maintenance</o:Status></o:Order>
+    </o:GetStatusResponse>
+  </s:Body>
+</s:Envelope>

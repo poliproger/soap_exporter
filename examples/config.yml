@@ -1,0 +1,253 @@
+# soap_exporter example configuration with fictitious services: every soap_exporter setting
+# (some as comments) and the common HTTP client settings. Reference: docs/configuration.md.
+# Validate a change with
+#
+#   soap_exporter --config.check --config.file=config.yml
+#
+# Relative paths (body_file, keytabs, password and token files, TLS files) are resolved
+# against the directory of this file, so the directory can be copied or mounted as a whole.
+# The files under secrets/ and certs/ are not part of the example: create your own.
+#
+# The exporter probes every target on its own schedule (interval) and serves the results of
+# the last probes on /metrics. A probe passes when the transport works and every check of
+# expect passes; otherwise soap_probe_failure_reason names the first check that failed.
+
+# defaults are deep-merged into every target: mappings (labels, headers, kerberos,
+# tls_config, expect, ...) merge key by key; scalars and lists replace; null removes an
+# inherited value. name, url, body and body_file cannot be set here.
+defaults:
+  interval: 1m          # time between two probes of a target (built-in default 1m)
+  # timeout: 10s        # deadline of one probe; unset: min(10s, interval). It must not exceed
+  #                     # the interval of any target that inherits it.
+  labels:             # describe the probed service; they go on every series of the target
+    team: integration   # environment-wide labels (env, region) belong in the Prometheus scrape config
+  headers:              # extra request headers (not Content-Type, SOAPAction or Authorization)
+    X-Request-Source: soap_exporter
+  kerberos:             # SPNEGO with this identity, unless a target says kerberos: null
+    principal: monitor@CORP.EXAMPLE
+    keytab: secrets/monitor.keytab
+  expect:
+    not_regex:          # fail if the body mentions an Oracle error, even inside a valid answer
+      - 'ORA-\d{5}'
+  # Built-in transport defaults, shown for reference:
+  #   keep_alive: false        a new connection per probe, so DNS, connect and TLS are measured
+  #   follow_redirects: false  a redirect fails the probe with reason status
+  #   enable_http2: false      HTTP/1.1 only (IIS Windows authentication needs it)
+  #   max_response_size: 10MiB
+
+targets:
+  # 1. An ASMX service on IIS (SOAP 1.1) with Windows authentication (Kerberos from the
+  #    defaults). The answer is an ADO.NET DataSet; its rows live in the DataSet's own
+  #    namespace, so XPath declares that namespace.
+  - name: branches
+    url: http://core.corp.example/CoreService/CoreService.asmx
+    interval: 5m        # an expensive call: probe it less often
+    timeout: 30s
+    labels:
+      team: core-banking
+      criticality: high
+    soap:
+      version: "1.1"    # the default; 1.1 and 1.2, with or without quotes
+      action: http://tempuri.org/GetBranches   # sent as SOAPAction: "http://tempuri.org/GetBranches"
+    body_file: requests/get-branches.xml       # must be a SOAP 1.1 envelope, checked at load
+    # kerberos.spn defaults to HTTP/<url host>, here HTTP/core.corp.example.
+    expect:
+      status: [200]     # the default
+      namespaces:
+        ds: http://tempuri.org/BranchDataSet.xsd
+      xpath:            # every expression must be true (XPath boolean())
+        - "count(//ds:Branch) > 0"
+        - "//ds:Branch[ds:Id = '1']"
+      # This list replaces the inherited one (lists do not merge).
+      not_regex:
+        - 'ORA-\d{5}'
+        - '(?i)deadlock'
+
+  # 2. The same Kerberos identity against a service that is called through a DNS alias.
+  #    The KDC knows the service under its real host name, so the SPN is set explicitly
+  #    (no DNS canonicalization takes place). Targets that share principal and keytab share
+  #    one Kerberos login.
+  - name: customer-lookup
+    url: http://crm.corp.example/Customers/CustomerService.asmx
+    labels:
+      team: crm
+    soap:
+      action: http://crm.corp.example/2024/customers/FindCustomer
+    body_file: requests/find-customer.xml
+    kerberos:
+      spn: HTTP/crm-app01.corp.example   # merged with defaults.kerberos
+    expect:
+      namespaces:
+        crm: http://crm.corp.example/2024/customers
+      xpath:
+        # A string result is true if it is not empty.
+        - "string(//crm:Customer/crm:Status)"
+      not_xpath:        # every expression must be false
+        - "//crm:Customer/crm:Status = 'Blocked'"
+
+  # 3. A WCF service (SOAP 1.2) with HTTP Basic authentication over HTTPS. The password is
+  #    read from a file for every probe, so it can be changed without a reload.
+  - name: orders-status
+    url: https://orders.corp.example/OrderService.svc
+    labels:
+      team: payments
+      criticality: high
+    soap:
+      version: "1.2"
+      action: http://corp.example/orders/IOrderService/GetStatus   # goes into Content-Type
+    body: |
+      <s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope">
+        <s:Body>
+          <GetStatus xmlns="http://corp.example/orders"/>
+        </s:Body>
+      </s:Envelope>
+    kerberos: null      # one auth method per target: drop the inherited Kerberos block
+    basic_auth:
+      username: soap-monitor
+      # username_file: secrets/orders-username   # instead of username, also read per probe
+      password_file: secrets/orders-password
+    tls_config:
+      ca_file: certs/corp-root-ca.pem   # trust the internal CA
+      min_version: TLS12
+    headers:
+      X-Request-Source: null            # drop the inherited header
+      User-Agent: orders-probe/1.0      # instead of soap_exporter/<version>
+      # Host: orders.corp.example       # sets the Host header, e.g. when url has an IP address
+    expect:
+      namespaces:
+        o: http://corp.example/orders
+      xpath:
+        # soap is bound to the envelope namespace of the target's SOAP version;
+        # soap11 and soap12 are always available.
+        - "/soap:Envelope/soap:Body/o:GetStatusResponse"
+      not_xpath:
+        - "//o:Status = 'Maintenance'"
+      headers:          # response header checks
+        - name: Content-Type
+          regex: '^application/soap\+xml'
+        - name: Strict-Transport-Security
+          regex: 'max-age=\d+'
+        - name: X-Maintenance   # not_regex fails if any value matches; a missing header passes
+          not_regex: '(?i)^true$'
+
+  # 4. A payment gateway that requires a client certificate (mutual TLS). A client
+  #    certificate is not an auth method, so it could be combined with one. Keep-alive is
+  #    turned on: the gateway rate-limits TLS handshakes, so the connection is reused
+  #    between probes; DNS, connect and TLS are then measured only for a new connection.
+  - name: payments-gateway
+    url: https://gateway.payments.corp.example:8443/soap/PaymentGateway
+    interval: 30s
+    timeout: 5s
+    labels:
+      team: payments
+      criticality: high
+    soap:
+      action: urn:corp-example:payments:Ping
+    body: |
+      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                        xmlns:p="urn:corp-example:payments">
+        <soapenv:Body><p:Ping/></soapenv:Body>
+      </soapenv:Envelope>
+    kerberos: null
+    keep_alive: true
+    tls_config:
+      ca_file: certs/corp-root-ca.pem
+      cert_file: certs/soap-monitor.pem   # re-read when the files change
+      key_file: certs/soap-monitor.key
+      server_name: gateway.payments.corp.example
+    max_response_size: 64KiB              # sizes are base 2: KiB, MiB (KB and MB too)
+    expect:
+      regex:
+        - '<(\w+:)?PingResult>OK</(\w+:)?PingResult>'
+
+  # 5. An external partner service (SOAP 1.2) behind the corporate proxy, with an OAuth2
+  #    client credentials token. A failing token request fails the probe with reason auth.
+  - name: partner-rates
+    url: https://soap.partner.example/rates/v2
+    interval: 15m       # the partner allows few calls; timeout stays at the 10s default
+    labels:
+      team: treasury
+    soap:
+      version: 1.2
+      action: urn:partner.example:rates:v2:GetRates
+    body_file: requests/get-rates.xml
+    kerberos: null
+    oauth2:
+      client_id: soap-monitor
+      client_secret_file: secrets/partner-client-secret
+      token_url: https://login.partner.example/oauth2/token
+      scopes: [rates.read]
+      proxy_url: http://proxy.corp.example:3128   # the token request has its own proxy setting
+    proxy_url: http://proxy.corp.example:3128
+    # no_proxy: .corp.example     # hosts reached directly, useful with proxy_url in defaults
+    # proxy_from_environment: true  # instead of proxy_url: HTTP_PROXY, HTTPS_PROXY, NO_PROXY
+    # follow_redirects: true  # if the partner redirects; up to 10 redirects are followed
+    expect:
+      namespaces:
+        r: urn:partner.example:rates:v2
+      xpath:
+        - "number(//r:Rate[r:Currency = 'USD']/r:Value) > 0"
+
+  # 6. A document archive with a bearer token and an API key header. Secret headers belong
+  #    in http_headers (values from files); plain headers are shown on /config.
+  - name: document-archive
+    url: https://archive.corp.example/ws/ArchiveService
+    labels:
+      team: records
+    soap:
+      action: http://archive.corp.example/ws/Search
+    body: |
+      <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+        <soap:Body>
+          <Search xmlns="http://archive.corp.example/ws"><MaxResults>1</MaxResults></Search>
+        </soap:Body>
+      </soap:Envelope>
+    kerberos: null
+    authorization:
+      type: Bearer
+      credentials_file: secrets/archive-token
+    http_headers:
+      X-Api-Key:
+        files: [secrets/archive-api-key]
+    max_response_size: 2MiB   # a search can return a large page; larger answers fail with body_too_large
+    expect:
+      regex:
+        # Go RE2 syntax without implicit flags: (?s) lets . match newlines.
+        - '(?s)<SearchResult>.*<TotalCount>\d+</TotalCount>'
+
+  # 7. A one-way operation (SOAP 1.2): the service accepts the message with 202 and an
+  #    empty body, which passes only because 202 is the expected status.
+  - name: audit-ingest
+    url: http://audit.corp.example:8080/ingest
+    labels:
+      team: security
+    soap:
+      version: "1.2"
+      action: urn:corp-example:audit:Heartbeat
+    body: >-
+      <env:Envelope xmlns:env="http://www.w3.org/2003/05/soap-envelope"><env:Body>
+      <Heartbeat xmlns="urn:corp-example:audit"/></env:Body></env:Envelope>
+    kerberos: null
+    expect:
+      status: [202]
+
+  # 8. A legacy service whose Ping operation always answers with a SOAP Fault. Here the
+  #    fault proves that the service is alive: it is allowed, the HTTP 500 a SOAP 1.1 fault
+  #    comes with is expected, and the fault text is checked with a regular expression.
+  - name: legacy-billing
+    url: http://billing-legacy.corp.example/services/Billing
+    interval: 2m
+    labels:
+      team: billing
+    soap:
+      action: ""        # the default: SOAPAction: ""
+    body: |
+      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+        <soapenv:Body><Ping xmlns="http://billing.corp.example/"/></soapenv:Body>
+      </soapenv:Envelope>
+    kerberos: null
+    expect:
+      allow_soap_fault: true
+      status: [200, 500]
+      xpath:
+        - "/soap:Envelope/soap:Body/soap:Fault/faultstring = 'Operation Ping is not supported'"

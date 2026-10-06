@@ -1,0 +1,88 @@
+# End-to-end smoke test of soap_exporter (plan §9 phase 8): the exporter image, an MIT KDC
+# and a mock SOAP service. Run it with run.sh, which builds the images, starts the stack,
+# asserts the metrics and always removes everything again.
+#
+# The exporter image is SOAP_EXPORTER_IMAGE. This file never builds it: run.sh adds
+# docker-compose.build.yml, which builds it from the repository Dockerfile, unless
+# SOAP_EXPORTER_IMAGE is set, e.g. to a release image (pulled if it is not present).
+#
+# The setup mirrors the production deployment with Docker Compose (plan D16, examples/):
+#   - The KDC (test/kdc) creates the realm CORP.EXAMPLE, the client principal monitor and
+#     the service principal HTTP/mocksoap, and exports their keytabs into the volume
+#     keytabs, owned by uid/gid 65532 with mode 0440. The exporter runs as the image's
+#     non-root user 65532 and reads monitor.keytab from there, read-only; the mock service
+#     (also uid 65532) reads HTTP_mocksoap.keytab.
+#   - krb5.conf is the file next to this one, bind-mounted read-only at /etc/krb5.conf as
+#     in examples/docker-compose.yml: it names the KDC by its service name.
+#   - The exporter's configuration directory (exporter/) is mounted as a whole, read-only,
+#     and the container runs with a read-only root file system and no capabilities.
+#   - Host names are the compose service names. The Kerberos target leaves kerberos.spn
+#     unset, so the exporter derives the SPN HTTP/mocksoap from its URL (plan D5): the usual
+#     deployment, in which a service is called under the host name its SPN is registered
+#     for. An explicit spn is only needed for an alias (see examples/config.yml).
+
+name: soap-exporter-test-e2e
+
+x-labels: &labels
+  soap-exporter-test: e2e
+
+services:
+  kdc:
+    build: ../kdc
+    labels: *labels
+    environment:
+      # KDC_REALM (CORP.EXAMPLE), KDC_KEYTAB_OWNER (65532:65532) and KDC_KEYTAB_MODE (0440)
+      # keep the image defaults.
+      KDC_PRINCIPALS: monitor HTTP/mocksoap
+    volumes:
+      - keytabs:/keytabs
+    # The image's health check, run every second during its start period (Docker's default
+    # is every 5s), so that the stack starts sooner. Compose needs start_period with it.
+    healthcheck:
+      start_period: 30s
+      start_interval: 1s
+
+  mocksoap:
+    build:
+      context: ../..
+      dockerfile: test/e2e/mocksoap/Dockerfile
+    labels: *labels
+    command: [-listen=:8080, -keytab=/keytabs/HTTP_mocksoap.keytab]
+    volumes:
+      - keytabs:/keytabs:ro
+    read_only: true
+    cap_drop: [ALL]
+    healthcheck:
+      test: [CMD, /bin/mocksoap, -listen=:8080, -health-check]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+    depends_on:
+      kdc:
+        condition: service_healthy
+
+  exporter:
+    image: ${SOAP_EXPORTER_IMAGE:-soap-exporter-test-e2e-exporter:local}
+    labels: *labels
+    command:
+      - --config.file=/etc/soap_exporter/config.yml
+      - --web.enable-lifecycle
+    volumes:
+      - ./exporter:/etc/soap_exporter:ro
+      - ./krb5.conf:/etc/krb5.conf:ro
+      - keytabs:/keytabs:ro
+    ports:
+      # A free port on the loopback interface; run.sh asks docker compose port for it.
+      - "127.0.0.1::10057"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    depends_on:
+      kdc:
+        condition: service_healthy
+      mocksoap:
+        condition: service_healthy
+
+volumes:
+  keytabs:
+    labels: *labels

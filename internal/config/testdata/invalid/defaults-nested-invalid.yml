@@ -1,0 +1,14 @@
+# Only rules across fields wait for the targets.
+# want: defaults: oauth2.tls_config.min_version: unknown TLS version: TLS99
+# want: defaults: tls_config.cert_fil: unknown field
+defaults:
+  tls_config:
+    cert_fil: monitor.pem
+  oauth2:
+    client_id: monitor
+    tls_config:
+      min_version: TLS99
+targets:
+  - name: orders
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'

@@ -1,0 +1,15 @@
+# Valid for the config loader, which does not read TLS files; building the prober of tls
+# fails, because its CA file does not exist.
+defaults:
+  interval: 1h
+  timeout: 10s
+
+targets:
+  - name: orders
+    url: {{.URL}}/ok
+    body_file: request.xml
+  - name: tls
+    url: {{.URL}}/ok
+    body_file: request.xml
+    tls_config:
+      ca_file: missing-ca.pem

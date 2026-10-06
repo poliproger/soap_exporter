@@ -1,0 +1,41 @@
+# A value that does not decode only skips the checks that read it.
+# want: target "a": max_response_size: invalid size "lots" (want a number of bytes or a size such as 512KiB or 4MiB)
+# want: target "a": url: must be an absolute http or https URL
+# want: target "a": labels.job: reserved label name
+# want: targets[1]: name: cannot unmarshal !!seq into string
+# want: target "c": soap.version: unsupported SOAP version "1.3"
+# want: target "d": interval: not a valid duration string: "soon"
+# want: target "e": kerberos.realm: unknown field
+# want: target "e": at most one auth method may be set, found kerberos, basic_auth
+targets:
+  - name: a
+    url: ftp://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    labels:
+      job: x
+    max_response_size: lots
+  # Not also "name: required".
+  - name: [b]
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+  # The body is not checked against the default version 1.1.
+  - name: c
+    url: https://orders.corp.example/Orders.svc
+    soap:
+      version: 1.3
+    body: '<s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope"><s:Body/></s:Envelope>'
+  # The timeout is not compared with the default interval.
+  - name: d
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    interval: soon
+    timeout: 2m
+  - name: e
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    kerberos:
+      principal: monitor@CORP.EXAMPLE
+      keytab: monitor.keytab
+      realm: CORP.EXAMPLE
+    basic_auth:
+      username: monitor

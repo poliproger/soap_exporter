@@ -1,0 +1,23 @@
+# stable is unchanged, changing gets another URL, removed is gone and added is new. The
+# /block endpoint never answers within the timeout, so neither changing nor added records a
+# result while the test runs.
+defaults:
+  interval: 100ms
+  timeout: 100ms
+
+targets:
+  - name: added
+    url: {{.URL}}/block
+    interval: 1m
+    timeout: 30s
+    body_file: request.xml
+  - name: stable
+    url: {{.URL}}/ok
+    body_file: request.xml
+    labels:
+      team: core
+  - name: changing
+    url: {{.URL}}/block
+    interval: 1m
+    timeout: 30s
+    body_file: request.xml

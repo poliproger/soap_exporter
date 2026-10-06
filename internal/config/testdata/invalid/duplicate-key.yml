@@ -1,0 +1,7 @@
+# want: line 7: field interval already set in type config.Target
+targets:
+  - name: orders
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    interval: 1m
+    interval: 2m

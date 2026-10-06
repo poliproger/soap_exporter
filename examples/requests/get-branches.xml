@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Request of the "branches" target: an ASMX operation (SOAP 1.1) that returns a DataSet. -->
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <GetBranches xmlns="http://tempuri.org/">
+      <regionId>0</regionId>
+    </GetBranches>
+  </soap:Body>
+</soap:Envelope>

@@ -1,0 +1,35 @@
+# Prometheus configuration for the Docker Compose example (docker-compose.yml).
+# Check it with: promtool check config prometheus.yml
+
+global:
+  scrape_interval: 30s
+  evaluation_interval: 30s
+
+rule_files:
+  - alerts.yml
+
+# The example has no Alertmanager: firing alerts show on the Alerts page of Prometheus.
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets: ["alertmanager:9093"]
+
+scrape_configs:
+  # soap_exporter probes its targets on its own schedule (the interval of each target) and
+  # serves the results of the last probes, so a scrape is cheap and does not call any SOAP
+  # service. Scrape at least as often as the shortest probe interval to see every result;
+  # soap_probes_total counts all of them anyway.
+  - job_name: soap_exporter
+    static_configs:
+      - targets: ["soap-exporter:10057"]
+        # Environment-wide labels belong here, not into the exporter configuration, whose
+        # labels describe the probed services.
+        labels:
+          env: production
+    # If the exporter runs with --web.config.file (TLS, basic auth):
+    # scheme: https
+    # tls_config:
+    #   ca_file: /etc/prometheus/soap-exporter-ca.pem
+    # basic_auth:
+    #   username: prometheus
+    #   password_file: /etc/prometheus/soap-exporter-password

@@ -1,0 +1,85 @@
+version: "2"
+
+run:
+  # Lint the Kerberos integration tests too.
+  build-tags: [integration]
+
+linters:
+  # errcheck, govet, ineffassign, staticcheck, unused
+  default: standard
+  enable:
+    - bodyclose
+    - errorlint
+    - gocritic
+    - misspell
+    - noctx
+    - nolintlint
+    - revive
+    - usestdlibvars
+  settings:
+    gocritic:
+      # The default checks plus a few low-noise diagnostics.
+      enabled-checks:
+        - badRegexp
+        - deferInLoop
+        - dupImport
+        - filepathJoin
+        - nilValReturn
+        - returnAfterHttpError
+        - sprintfQuotedString
+        - uncheckedInlineErr
+        - weakCond
+      disabled-checks:
+        - ifElseChain
+    nolintlint:
+      require-specific: true
+    revive:
+      rules:
+        - name: blank-imports
+        - name: context-as-argument
+        - name: context-keys-type
+        - name: dot-imports
+        - name: error-naming
+        - name: error-return
+        - name: error-strings
+        - name: errorf
+        - name: increment-decrement
+        - name: indent-error-flow
+        - name: range
+        - name: receiver-naming
+        - name: redefines-builtin-id
+        - name: superfluous-else
+        - name: time-naming
+        - name: unexported-return
+        - name: unreachable-code
+        - name: var-declaration
+        - name: var-naming
+  exclusions:
+    generated: lax
+    presets:
+      - common-false-positives
+      - std-error-handling
+    rules:
+      # Tests may ignore errors of helpers and use bare requests against httptest servers.
+      - path: _test\.go
+        linters:
+          - bodyclose
+          - errcheck
+          - noctx
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    gofmt:
+      simplify: true
+    goimports:
+      local-prefixes:
+        - github.com/poliproger/soap_exporter
+  exclusions:
+    generated: lax

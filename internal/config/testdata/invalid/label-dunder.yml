@@ -1,0 +1,7 @@
+# want: target "orders": labels.__team: label names starting with __ are reserved
+targets:
+  - name: orders
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    labels:
+      __team: payments

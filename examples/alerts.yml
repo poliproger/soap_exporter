@@ -1,0 +1,70 @@
+# Alert rules for soap_exporter, loaded by prometheus.yml (rule_files).
+# Check them with: promtool check rules alerts.yml
+#
+# Every target series carries the label target plus the target's user labels (team,
+# criticality, ... from the exporter configuration), so alerts can be routed on them
+# without joins. The failure reason is deliberately not an alert label: a target whose
+# reason changes (timeout, then connect) would otherwise start a new alert and its for:
+# timer again. The annotations look the current reason up instead.
+#
+# Also alert on the exporter itself being down (up{job="soap_exporter"} == 0): its series
+# then disappear, and none of the rules below fires.
+groups:
+  - name: soap_exporter
+    rules:
+      # The last probe failed. Probes run on the exporter's schedule, so for: is measured in
+      # probe intervals: with a 1m interval, 5m means about five failed probes in a row; a
+      # target with an interval longer than 5m alerts after a single failed probe.
+      - alert: SoapTargetDown
+        expr: soap_probe_success == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: SOAP target {{ $labels.target }} is failing
+          description: >-
+            The probes of {{ $labels.target }} fail with reason
+            {{ with printf "soap_probe_failure_reason{job=%q,instance=%q,target=%q}" $labels.job $labels.instance $labels.target | query }}{{ . | first | label "reason" }}{{ else }}unknown{{ end }}.
+            The message and every check are on
+            http://{{ $labels.instance }}/debug/probes?target={{ $labels.target | urlquery }}
+
+      # No probe finished for three intervals: the probe loop of the target is stuck, or the
+      # clock of the exporter's host is behind the clock of Prometheus.
+      - alert: SoapProbeStale
+        expr: time() - soap_probe_last_timestamp_seconds > 3 * soap_probe_interval_seconds
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: SOAP target {{ $labels.target }} has not been probed recently
+          description: >-
+            The last probe of {{ $labels.target }} finished {{ $value | humanizeDuration }}
+            ago, more than three probe intervals.
+
+      # The earliest NotAfter of the server's certificate chain is less than 14 days away.
+      # A certificate that has expired or is not trusted fails the TLS handshake instead:
+      # the probe then fails with reason tls (SoapTargetDown) and this metric disappears.
+      - alert: SoapCertExpiringSoon
+        expr: soap_probe_tls_cert_expiry_timestamp_seconds - time() < 14 * 86400
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: TLS certificate of SOAP target {{ $labels.target }} expires soon
+          description: >-
+            A certificate in the chain of {{ $labels.target }} expires in
+            {{ $value | humanizeDuration }}.
+
+      # A reload (SIGHUP or POST /-/reload) failed; the previous configuration is still in
+      # effect. The exporter log has the error ("Reloading configuration failed").
+      - alert: SoapExporterReloadFailed
+        expr: soap_exporter_config_last_reload_successful == 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: soap_exporter {{ $labels.instance }} failed to reload its configuration
+          description: >-
+            The last configuration reload of {{ $labels.instance }} failed and the previous
+            configuration is still in effect. Validate the file with
+            soap_exporter --config.check and check the exporter log.

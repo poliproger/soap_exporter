@@ -1,0 +1,3 @@
+# want: targets: want a list, got a mapping
+targets:
+  name: orders

@@ -1,0 +1,14 @@
+# want: target "inventory": tls_config: exactly one of key or key_file must be configured when a client certificate is configured
+# The defaults are only complete in the targets that set the key.
+defaults:
+  tls_config:
+    cert_file: monitor.pem
+targets:
+  - name: orders
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    tls_config:
+      key_file: monitor.key
+  - name: inventory
+    url: https://inventory.corp.example/Inventory.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'

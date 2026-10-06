@@ -1,0 +1,3 @@
+# want: targets[0]: want a mapping, got a string
+targets:
+  - orders

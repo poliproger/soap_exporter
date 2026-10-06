@@ -1,0 +1,12 @@
+# want: target "orders": at most one auth method may be set, found kerberos, basic_auth
+# reject: s3cret
+targets:
+  - name: orders
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    kerberos:
+      principal: monitor@CORP.EXAMPLE
+      keytab: files/monitor.keytab
+    basic_auth:
+      username: monitor
+      password: s3cret

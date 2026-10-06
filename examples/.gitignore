@@ -1,0 +1,3 @@
+# Secrets and keys of a deployment made from this example: never commit them.
+/secrets/
+/certs/

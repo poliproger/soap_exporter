@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <Fault xmlns="urn:example:status">
+      <faultcode>Server</faultcode>
+      <faultstring>an application element that happens to be called Fault</faultstring>
+    </Fault>
+  </soap:Body>
+</soap:Envelope>

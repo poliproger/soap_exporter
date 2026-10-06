@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <GetBranchResponse xmlns="http://corp.example/">
+      <Branch><Id>1</Id><Name>Центральный филиал</Name></Branch>
+    </GetBranchResponse>
+  </soap:Body>
+</soap:Envelope>

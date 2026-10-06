@@ -1,0 +1,14 @@
+# Prometheus Operator target labels are allowed, with a warning (plan §5.3).
+defaults:
+  labels:
+    namespace: payments
+targets:
+  - name: orders
+    url: https://orders.example.com/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    labels:
+      container: orders
+      endpoint: soap
+      pod: orders-0
+      service: orders
+      team: payments

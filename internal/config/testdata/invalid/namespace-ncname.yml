@@ -1,0 +1,8 @@
+# want: target "orders": expect.namespaces.1o: invalid prefix (want an XML NCName)
+targets:
+  - name: orders
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    expect:
+      namespaces:
+        1o: http://corp.example/

@@ -1,0 +1,5 @@
+# want: target "orders": body_file: stat .../testdata/invalid/files/missing.xml: no such file or directory
+targets:
+  - name: orders
+    url: https://orders.corp.example/Orders.svc
+    body_file: files/missing.xml

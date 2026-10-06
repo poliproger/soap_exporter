@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE soap:Envelope [<!ENTITY order "1">]>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <GetOrdersResponse xmlns="http://corp.example/"><Order><Id>&order;</Id></Order></GetOrdersResponse>
+  </soap:Body>
+</soap:Envelope>

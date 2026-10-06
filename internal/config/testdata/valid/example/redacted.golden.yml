@@ -1,0 +1,116 @@
+targets:
+- name: branches-load
+  url: http://core.corp.example/CoreService.asmx
+  interval: 5m
+  timeout: 30s
+  labels:
+    system: core
+    team: core-banking
+  soap:
+    version: "1.1"
+    action: http://tempuri.org/LoadBranches
+  body_file: $DIR/requests/load-branches.xml
+  headers:
+    X-Request-Source: monitoring
+  kerberos:
+    principal: monitor@CORP.EXAMPLE
+    keytab: $DIR/monitor.keytab
+    spn: HTTP/core-alias.corp.example
+  keep_alive: false
+  max_response_size: 10MiB
+  expect:
+    status:
+    - 200
+    allow_soap_fault: false
+    namespaces:
+      ds: http://tempuri.org/BranchesDataset.xsd
+    not_regex:
+    - ORA-\d{5}
+    xpath:
+    - //ds:Branches[ds:Id = '1']
+  tls_config:
+    ca_file: $DIR/certs/corp-root.pem
+    insecure_skip_verify: false
+    min_version: TLS12
+  follow_redirects: false
+  enable_http2: false
+- name: orders-status
+  url: https://orders.corp.example:8443/Orders.svc
+  interval: 1m
+  timeout: 10s
+  labels:
+    release: "1.10"
+    system: core
+    team: payments
+  soap:
+    version: "1.2"
+    action: http://corp.example/IOrders/GetStatus
+  body: |
+    <s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope">
+      <s:Body><GetStatus xmlns="http://corp.example/"/></s:Body>
+    </s:Envelope>
+  headers:
+    X-Api-Version: "2.0"
+    X-Request-Source: monitoring
+  keep_alive: false
+  max_response_size: 4MiB
+  expect:
+    status:
+    - 200
+    allow_soap_fault: false
+    namespaces:
+      o: http://corp.example/
+    headers:
+    - name: Content-Type
+      regex: ^application/soap\+xml
+    not_regex:
+    - Exception
+    xpath:
+    - count(//o:Order) > 0
+    not_xpath:
+    - //o:Status[. = 'Maintenance']
+  basic_auth:
+    username: monitor
+    password_file: $DIR/secrets/orders-password
+  tls_config:
+    ca_file: $DIR/certs/corp-root.pem
+    cert_file: $DIR/certs/monitor.pem
+    key_file: $DIR/certs/monitor.key
+    insecure_skip_verify: false
+    min_version: TLS12
+  follow_redirects: false
+  enable_http2: false
+  proxy_url: http://proxy.corp.example:3128
+- name: inventory
+  url: http://inventory.corp.example:8080/Inventory.asmx
+  interval: 1m
+  timeout: 10s
+  labels:
+    system: core
+  soap:
+    version: "1.1"
+    action: http://tempuri.org/Ping
+  body: <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>
+  headers:
+    User-Agent: inventory-probe/1.0
+  kerberos:
+    principal: monitor@CORP.EXAMPLE
+    keytab: $DIR/monitor.keytab
+    spn: HTTP/inventory.corp.example
+  keep_alive: false
+  max_response_size: 512KiB
+  expect:
+    status:
+    - 200
+    - 202
+    allow_soap_fault: true
+    not_regex:
+    - ORA-\d{5}
+    xpath:
+    - /soap:Envelope/soap:Body
+  tls_config:
+    ca_file: $DIR/certs/corp-root.pem
+    insecure_skip_verify: false
+    min_version: TLS12
+  follow_redirects: false
+  enable_http2: false

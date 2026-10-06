@@ -1,0 +1,6 @@
+# want: target "orders": max_response_size: invalid size "4mib" (want a number of bytes or a size such as 512KiB or 4MiB)
+targets:
+  - name: orders
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    max_response_size: 4mib

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Request of the "customer-lookup" target: a lookup of a well-known test customer. -->
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+               xmlns:crm="http://crm.corp.example/2024/customers">
+  <soap:Header/>
+  <soap:Body>
+    <crm:FindCustomer>
+      <crm:CustomerNumber>MONITORING-0001</crm:CustomerNumber>
+    </crm:FindCustomer>
+  </soap:Body>
+</soap:Envelope>

@@ -1,0 +1,16 @@
+# run.yml with branches replaced by inventory.
+defaults:
+  interval: 1s
+  timeout: 1s
+  soap:
+    action: http://example.com/Ping
+
+targets:
+  - name: orders
+    url: {{.URL}}/ok
+    body_file: request.xml
+    labels:
+      team: payments
+  - name: inventory
+    url: {{.URL}}/ok
+    body_file: request.xml

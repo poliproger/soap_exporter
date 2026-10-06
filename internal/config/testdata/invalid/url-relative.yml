@@ -1,0 +1,5 @@
+# want: target "orders": url: must be an absolute http or https URL
+targets:
+  - name: orders
+    url: /Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'

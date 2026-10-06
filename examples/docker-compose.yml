@@ -1,0 +1,86 @@
+# soap_exporter with Prometheus and Grafana. See "Deployment with Docker Compose" in the README.
+#
+# Files next to this file (the exporter gets this directory as /etc/soap_exporter):
+#   config.yml, requests/   the exporter configuration and its request bodies
+#   secrets/                the keytab and the password and token files: create it, keep it out
+#                           of version control, and make it readable for the exporter (below)
+#   certs/                  CA and client certificates referenced by config.yml
+#   krb5.conf               the Kerberos configuration
+#   prometheus.yml, alerts.yml, grafana-dashboard.json, grafana/provisioning/
+#
+#   docker compose up -d
+#   docker compose kill -s HUP soap-exporter    # reload config.yml after a change
+#
+# The exporter needs no writable file system and no capabilities.
+
+services:
+  soap-exporter:
+    # Pin a release in production, e.g. ghcr.io/poliproger/soap_exporter:1.0.0.
+    image: ghcr.io/poliproger/soap_exporter:latest
+    command:
+      - --config.file=/etc/soap_exporter/config.yml
+      # POST /-/reload, PUT /-/log-level and POST /debug/probe. Anyone who can reach port
+      # 10057 can use them: publish the port only where that is acceptable, or protect it
+      # with --web.config.file (TLS, basic auth).
+      - --web.enable-lifecycle
+    volumes:
+      # This directory as a whole: config.yml, requests/, secrets/ and certs/ keep their
+      # relative paths, against which the paths in config.yml resolve. Mount a directory,
+      # not single files: a file replaced by renaming (vim, sed -i, an atomic keytab rotation)
+      # stays invisible behind a single-file bind mount, and a reload then fails or silently
+      # keeps reading the old file.
+      - .:/etc/soap_exporter:ro
+      # Read once at startup; a change needs a restart, which mounts the file again.
+      - ./krb5.conf:/etc/krb5.conf:ro
+    # The image runs as uid/gid 65532. On a Linux host the keytab and the other secrets must
+    # be readable by it, e.g. chown -R 65532:65532 secrets && chmod 0500 secrets &&
+    # chmod 0400 secrets/*. Alternatively, run the exporter as the owner of the files:
+    # user: "1000:1000"
+    extra_hosts:
+      # Names that resolve only through the host's /etc/hosts, not DNS: the container does
+      # not see that file. List the SOAP services and the KDCs.
+      - "core.corp.example:192.0.2.10"
+      - "crm.corp.example:192.0.2.11"
+      - "dc01.corp.example:192.0.2.53"
+      - "dc02.corp.example:192.0.2.54"
+    ports:
+      - "10057:10057"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    restart: unless-stopped
+    # Kerberos tolerates 5 minutes of clock skew. Containers use the host clock: keep it
+    # synchronized (chrony, systemd-timesyncd).
+
+  prometheus:
+    image: prom/prometheus:v3.15.0
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=30d
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:13.2.3
+    environment:
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      # The first login is admin/admin; Grafana then asks for a new password.
+    volumes:
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana-dashboard.json:/var/lib/grafana/dashboards/soap_exporter.json:ro
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+volumes:
+  prometheus-data:
+  grafana-data:

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Request of the "partner-rates" target (SOAP 1.2). -->
+<env:Envelope xmlns:env="http://www.w3.org/2003/05/soap-envelope"
+              xmlns:r="urn:partner.example:rates:v2">
+  <env:Body>
+    <r:GetRates>
+      <r:BaseCurrency>EUR</r:BaseCurrency>
+      <r:Currency>USD</r:Currency>
+    </r:GetRates>
+  </env:Body>
+</env:Envelope>

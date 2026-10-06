@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <soap:Fault>
+      <faultcode>soap:Server</faultcode>
+      <faultstring xml:lang="en">
+        Server was unable to process request. ---&gt; Timeout expired.
+      </faultstring>
+      <detail><e:Info xmlns:e="urn:example:errors">ORA-01013</e:Info></detail>
+    </soap:Fault>
+  </soap:Body>
+</soap:Envelope>

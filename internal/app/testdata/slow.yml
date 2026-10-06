@@ -1,0 +1,10 @@
+# slow never answers: /block holds the request until it is cancelled.
+targets:
+  - name: slow
+    url: {{.URL}}/block
+    interval: 1h
+    timeout: 30m
+    body_file: request.xml
+    kerberos:
+      principal: monitor@CORP.EXAMPLE
+      keytab: monitor.keytab

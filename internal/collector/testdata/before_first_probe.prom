@@ -1,0 +1,40 @@
+# HELP soap_probe_duration_seconds Total duration of probes that received an HTTP response.
+# TYPE soap_probe_duration_seconds histogram
+soap_probe_duration_seconds_bucket{target="orders",team="payments",le="0.01"} 0
+soap_probe_duration_seconds_bucket{target="orders",team="payments",le="0.025"} 0
+soap_probe_duration_seconds_bucket{target="orders",team="payments",le="0.05"} 0
+soap_probe_duration_seconds_bucket{target="orders",team="payments",le="0.1"} 0
+soap_probe_duration_seconds_bucket{target="orders",team="payments",le="0.25"} 0
+soap_probe_duration_seconds_bucket{target="orders",team="payments",le="0.5"} 0
+soap_probe_duration_seconds_bucket{target="orders",team="payments",le="1"} 0
+soap_probe_duration_seconds_bucket{target="orders",team="payments",le="2.5"} 0
+soap_probe_duration_seconds_bucket{target="orders",team="payments",le="5"} 0
+soap_probe_duration_seconds_bucket{target="orders",team="payments",le="10"} 0
+soap_probe_duration_seconds_bucket{target="orders",team="payments",le="30"} 0
+soap_probe_duration_seconds_bucket{target="orders",team="payments",le="60"} 0
+soap_probe_duration_seconds_bucket{target="orders",team="payments",le="+Inf"} 0
+soap_probe_duration_seconds_sum{target="orders",team="payments"} 0
+soap_probe_duration_seconds_count{target="orders",team="payments"} 0
+# HELP soap_probe_interval_seconds Configured probe interval in seconds.
+# TYPE soap_probe_interval_seconds gauge
+soap_probe_interval_seconds{target="orders",team="payments"} 300
+# HELP soap_probes_total Probes by result: success or the failure reason.
+# TYPE soap_probes_total counter
+soap_probes_total{result="auth",target="orders",team="payments"} 0
+soap_probes_total{result="body_too_large",target="orders",team="payments"} 0
+soap_probes_total{result="connect",target="orders",team="payments"} 0
+soap_probes_total{result="dns",target="orders",team="payments"} 0
+soap_probes_total{result="header",target="orders",team="payments"} 0
+soap_probes_total{result="http",target="orders",team="payments"} 0
+soap_probes_total{result="internal",target="orders",team="payments"} 0
+soap_probes_total{result="invalid_envelope",target="orders",team="payments"} 0
+soap_probes_total{result="regex",target="orders",team="payments"} 0
+soap_probes_total{result="soap_fault",target="orders",team="payments"} 0
+soap_probes_total{result="status",target="orders",team="payments"} 0
+soap_probes_total{result="success",target="orders",team="payments"} 0
+soap_probes_total{result="timeout",target="orders",team="payments"} 0
+soap_probes_total{result="tls",target="orders",team="payments"} 0
+soap_probes_total{result="xpath",target="orders",team="payments"} 0
+# HELP soap_target_info Static information about the probed target; always 1.
+# TYPE soap_target_info gauge
+soap_target_info{auth="basic",soap_action="http://corp.example/IOrders/GetStatus",soap_version="1.2",target="orders",team="payments",url="https://monitor:xxxxx@orders.corp.example/Orders.svc?wsdl=0"} 1

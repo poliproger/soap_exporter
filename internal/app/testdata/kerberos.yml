@@ -1,0 +1,25 @@
+# orders and branches share the monitor credential, payments has its own and public none.
+defaults:
+  interval: 1h
+  timeout: 10s
+  kerberos:
+    principal: monitor@CORP.EXAMPLE
+    keytab: monitor.keytab
+
+targets:
+  - name: orders
+    url: {{.URL}}/negotiate
+    body_file: request.xml
+  - name: branches
+    url: {{.URL}}/negotiate
+    body_file: request.xml
+  - name: payments
+    url: {{.URL}}/negotiate
+    body_file: request.xml
+    kerberos:
+      principal: payments@CORP.EXAMPLE
+      keytab: payments.keytab
+  - name: public
+    url: {{.URL}}/ok
+    body_file: request.xml
+    kerberos: null

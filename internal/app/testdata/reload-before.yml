@@ -1,0 +1,17 @@
+# Three targets probed every 100ms.
+defaults:
+  interval: 100ms
+  timeout: 100ms
+
+targets:
+  - name: stable
+    url: {{.URL}}/ok
+    body_file: request.xml
+    labels:
+      team: core
+  - name: changing
+    url: {{.URL}}/ok
+    body_file: request.xml
+  - name: removed
+    url: {{.URL}}/ok
+    body_file: request.xml

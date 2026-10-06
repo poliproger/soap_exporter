@@ -1,0 +1,7 @@
+# want: defaults: timeout: unknown unit "x" in duration "10x"
+defaults:
+  timeout: 10x
+targets:
+  - name: orders
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'

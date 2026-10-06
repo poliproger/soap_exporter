@@ -1,0 +1,16 @@
+# orders is unchanged, billing is new and shares its credential; branches, payments and
+# public are gone, so the payments credential is no longer used.
+defaults:
+  interval: 1h
+  timeout: 10s
+  kerberos:
+    principal: monitor@CORP.EXAMPLE
+    keytab: monitor.keytab
+
+targets:
+  - name: orders
+    url: {{.URL}}/negotiate
+    body_file: request.xml
+  - name: billing
+    url: {{.URL}}/negotiate
+    body_file: request.xml

@@ -1,0 +1,7 @@
+# want: target "orders": body: invalid request: request envelope is SOAP 1.1, want SOAP 1.2
+targets:
+  - name: orders
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    soap:
+      version: 1.2

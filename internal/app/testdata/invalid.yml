@@ -1,0 +1,7 @@
+# The timeout of orders exceeds its interval.
+targets:
+  - name: orders
+    url: {{.URL}}/ok
+    interval: 1m
+    timeout: 2m
+    body_file: request.xml

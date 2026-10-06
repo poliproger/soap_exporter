@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <GetStatusResponse xmlns="urn:example:status">
+      <soap:Fault>
+        <faultcode>soap:Server</faultcode>
+        <faultstring>not a SOAP Fault: it is not a direct child of Body</faultstring>
+      </soap:Fault>
+    </GetStatusResponse>
+  </soap:Body>
+</soap:Envelope>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<env:Envelope xmlns:env="http://www.w3.org/2003/05/soap-envelope">
+  <env:Header>
+    <t:Trace xmlns:t="urn:example:trace">42</t:Trace>
+  </env:Header>
+  <env:Body>
+    <m:GetStatusResponse xmlns:m="urn:example:status">
+      <m:GetStatusResult>OK</m:GetStatusResult>
+    </m:GetStatusResponse>
+  </env:Body>
+</env:Envelope>

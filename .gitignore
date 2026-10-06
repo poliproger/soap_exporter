@@ -1,2 +1,7 @@
 .idea/
 *.iml
+/soap_exporter
+/dist/
+*.out
+*.test
+coverage.*

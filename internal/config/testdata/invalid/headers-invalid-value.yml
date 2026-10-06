@@ -1,0 +1,7 @@
+# want: target "orders": headers.X-Source: invalid header value
+targets:
+  - name: orders
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    headers:
+      X-Source: "a\nb"

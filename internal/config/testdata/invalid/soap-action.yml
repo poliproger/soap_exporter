@@ -1,0 +1,7 @@
+# want: target "orders": soap.action: contains characters not allowed in an HTTP header
+targets:
+  - name: orders
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    soap:
+      action: "http://corp.example/GetStatus\r\nX-Injected: 1"

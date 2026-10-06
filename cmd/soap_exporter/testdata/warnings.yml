@@ -1,0 +1,7 @@
+# Valid, with a warning for a Prometheus Operator label name.
+targets:
+  - name: orders
+    url: http://orders.example.com/Orders.asmx
+    body_file: request.xml
+    labels:
+      namespace: payments

@@ -1,0 +1,15 @@
+# Two plain targets; --config.check makes no network contact.
+defaults:
+  interval: 1m
+  soap:
+    action: http://example.com/Ping
+
+targets:
+  - name: orders
+    url: http://orders.example.com/Orders.asmx
+    body_file: request.xml
+    labels:
+      team: payments
+  - name: branches
+    url: https://branches.example.com/Branches.svc
+    body_file: request.xml

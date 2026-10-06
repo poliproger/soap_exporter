@@ -1,0 +1,12 @@
+# A target whose server does not answer: its probes run until they are cancelled. The timeout
+# exceeds the shutdown timeout of the exporter.
+defaults:
+  interval: 1m
+  timeout: 50s
+  soap:
+    action: http://example.com/Ping
+
+targets:
+  - name: slow
+    url: {{.URL}}/hang
+    body_file: request.xml

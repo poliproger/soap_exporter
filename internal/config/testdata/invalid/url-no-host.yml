@@ -1,0 +1,5 @@
+# want: target "orders": url: has no host
+targets:
+  - name: orders
+    url: http:///Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'

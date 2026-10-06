@@ -1,0 +1,6 @@
+# want: target "orders": if no_proxy is configured, proxy_url must also be configured
+targets:
+  - name: orders
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    no_proxy: corp.example

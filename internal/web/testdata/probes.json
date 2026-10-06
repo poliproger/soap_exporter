@@ -1,0 +1,188 @@
+{
+  "targets": [
+    {
+      "name": "orders",
+      "url": "https://orders.example.com/Orders.svc",
+      "soap_version": "1.2",
+      "soap_action": "http://example.com/IOrders/GetStatus",
+      "auth": "basic",
+      "interval_seconds": 300,
+      "timeout_seconds": 30,
+      "labels": {
+        "team": "payments"
+      },
+      "results": [
+        {
+          "start": "2026-10-02T12:01:00Z",
+          "end": "2026-10-02T12:01:01.5Z",
+          "duration_seconds": 1.5,
+          "success": false,
+          "reason": "soap_fault",
+          "message": "\u003cscript\u003ealert(\"message\")\u003c/script\u003e",
+          "phase_duration_seconds": {
+            "connect": 0.01,
+            "processing": 0.25,
+            "resolve": 0.002,
+            "tls": 0.04,
+            "transfer": 0.01
+          },
+          "checks": [
+            {
+              "name": "soap_fault",
+              "reason": "soap_fault",
+              "passed": false,
+              "message": "\u003cb onmouseover=alert(\"check\")\u003e"
+            },
+            {
+              "name": "status",
+              "reason": "status",
+              "passed": false,
+              "message": "got 500, want [200]"
+            },
+            {
+              "name": "envelope",
+              "reason": "invalid_envelope",
+              "passed": true
+            }
+          ],
+          "got_response": true,
+          "http_status": 500,
+          "body_size_bytes": 36,
+          "response_headers": {
+            "Content-Type": [
+              "application/soap+xml; charset=utf-8"
+            ],
+            "Set-Cookie": [
+              "\u003credacted\u003e"
+            ],
+            "Www-Authenticate": [
+              "Negotiate \u003credacted\u003e"
+            ],
+            "X-Evil": [
+              "\u003cimg src=x onerror=alert(\"header\")\u003e"
+            ]
+          },
+          "tls": {
+            "version": "TLS 1.3",
+            "cipher_suite": "TLS_AES_128_GCM_SHA256",
+            "server_name": "orders.example.com",
+            "earliest_expiry": "2026-12-01T00:00:00Z",
+            "chain": [
+              {
+                "subject": "CN=\u003ci\u003eevil\u003c/i\u003e",
+                "issuer": "CN=Example Issuing CA",
+                "not_before": "2026-09-02T12:00:00Z",
+                "not_after": "2027-01-01T00:00:00Z",
+                "dns_names": [
+                  "orders.example.com",
+                  "orders2.example.com"
+                ]
+              },
+              {
+                "subject": "CN=Example Issuing CA",
+                "issuer": "CN=Example Root CA",
+                "not_before": "2025-10-02T12:00:00Z",
+                "not_after": "2026-12-01T00:00:00Z"
+              }
+            ]
+          },
+          "spn": "HTTP/\u003csvg onload=alert(\"spn\")\u003e",
+          "charset": "utf-8",
+          "body": "\u003c/pre\u003e\u003cscript\u003ealert(\"body\")\u003c/script\u003e",
+          "body_truncated": true
+        },
+        {
+          "start": "2026-10-02T12:00:00Z",
+          "end": "2026-10-02T12:00:00.312Z",
+          "duration_seconds": 0.312,
+          "success": true,
+          "reason": "",
+          "message": "",
+          "phase_duration_seconds": {
+            "connect": 0.01,
+            "processing": 0.25,
+            "resolve": 0.002,
+            "tls": 0.04,
+            "transfer": 0.01
+          },
+          "checks": [
+            {
+              "name": "soap_fault",
+              "reason": "soap_fault",
+              "passed": true
+            },
+            {
+              "name": "status",
+              "reason": "status",
+              "passed": true
+            },
+            {
+              "name": "envelope",
+              "reason": "invalid_envelope",
+              "passed": true
+            }
+          ],
+          "got_response": true,
+          "http_status": 200,
+          "body_size_bytes": 1234,
+          "response_headers": {
+            "Content-Type": [
+              "application/soap+xml; charset=utf-8"
+            ]
+          },
+          "tls": {
+            "version": "TLS 1.3",
+            "cipher_suite": "TLS_AES_128_GCM_SHA256",
+            "server_name": "orders.example.com",
+            "earliest_expiry": "2026-12-01T00:00:00Z",
+            "chain": [
+              {
+                "subject": "CN=orders.example.com",
+                "issuer": "CN=Example Issuing CA",
+                "not_before": "2026-09-02T12:00:00Z",
+                "not_after": "2027-01-01T00:00:00Z",
+                "dns_names": [
+                  "orders.example.com",
+                  "orders2.example.com"
+                ]
+              },
+              {
+                "subject": "CN=Example Issuing CA",
+                "issuer": "CN=Example Root CA",
+                "not_before": "2025-10-02T12:00:00Z",
+                "not_after": "2026-12-01T00:00:00Z"
+              }
+            ]
+          },
+          "charset": "utf-8",
+          "body": "\u003cs:Envelope xmlns:s=\"http://www.w3.org/2003/05/soap-envelope\"\u003e\u003cs:Body/\u003e\u003c/s:Envelope\u003e"
+        }
+      ]
+    },
+    {
+      "name": "\u003cscript\u003ealert(\"name\")\u003c/script\u003e\u0026target=orders",
+      "url": "http://hostile.example.com/Service.asmx",
+      "soap_version": "1.1",
+      "auth": "none",
+      "interval_seconds": 60,
+      "timeout_seconds": 10,
+      "results": [
+        {
+          "start": "2026-10-02T12:02:00Z",
+          "end": "2026-10-02T12:02:00.003Z",
+          "duration_seconds": 0.003,
+          "success": false,
+          "reason": "dns",
+          "message": "lookup hostile.example.com: no such host",
+          "phase_duration_seconds": {
+            "resolve": 0.003
+          },
+          "checks": [],
+          "got_response": false,
+          "http_status": 0,
+          "body_size_bytes": 0
+        }
+      ]
+    }
+  ]
+}

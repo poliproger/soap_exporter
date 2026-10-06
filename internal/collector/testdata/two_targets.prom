@@ -1,0 +1,30 @@
+# HELP soap_probe_failure_reason Failure reason of the last probe; absent while the target is healthy.
+# TYPE soap_probe_failure_reason gauge
+soap_probe_failure_reason{criticality="high",reason="timeout",system="core",target="core",team=""} 1
+# HELP soap_probe_http_status_code HTTP status code of the last probe, 0 if there was no response.
+# TYPE soap_probe_http_status_code gauge
+soap_probe_http_status_code{criticality="",system="",target="orders",team="payments"} 200
+soap_probe_http_status_code{criticality="high",system="core",target="core",team=""} 0
+# HELP soap_probe_interval_seconds Configured probe interval in seconds.
+# TYPE soap_probe_interval_seconds gauge
+soap_probe_interval_seconds{criticality="",system="",target="orders",team="payments"} 300
+soap_probe_interval_seconds{criticality="high",system="core",target="core",team=""} 60
+# HELP soap_probe_last_timestamp_seconds Unix time when the last probe finished.
+# TYPE soap_probe_last_timestamp_seconds gauge
+soap_probe_last_timestamp_seconds{criticality="",system="",target="orders",team="payments"} 1.790942400312e+09
+soap_probe_last_timestamp_seconds{criticality="high",system="core",target="core",team=""} 1.79094241e+09
+# HELP soap_probe_response_size_bytes Response body size of the last probe in bytes.
+# TYPE soap_probe_response_size_bytes gauge
+soap_probe_response_size_bytes{criticality="",system="",target="orders",team="payments"} 1234
+soap_probe_response_size_bytes{criticality="high",system="core",target="core",team=""} 0
+# HELP soap_probe_success Whether the last probe passed all checks.
+# TYPE soap_probe_success gauge
+soap_probe_success{criticality="",system="",target="orders",team="payments"} 1
+soap_probe_success{criticality="high",system="core",target="core",team=""} 0
+# HELP soap_probe_tls_version_info TLS version negotiated by the last probe.
+# TYPE soap_probe_tls_version_info gauge
+soap_probe_tls_version_info{criticality="",system="",target="orders",team="payments",version="TLS 1.3"} 1
+# HELP soap_target_info Static information about the probed target; always 1.
+# TYPE soap_target_info gauge
+soap_target_info{auth="basic",criticality="",soap_action="http://corp.example/IOrders/GetStatus",soap_version="1.2",system="",target="orders",team="payments",url="https://monitor:xxxxx@orders.corp.example/Orders.svc?wsdl=0"} 1
+soap_target_info{auth="kerberos",criticality="high",soap_action="",soap_version="1.1",system="core",target="core",team="",url="http://core.corp.example/CoreService.asmx"} 1

@@ -1,0 +1,17 @@
+# The end-to-end configuration, a template of the test's SOAP server URL. The short interval
+# makes the first probes come soon.
+defaults:
+  interval: 1s
+  timeout: 1s
+  soap:
+    action: http://example.com/Ping
+
+targets:
+  - name: orders
+    url: {{.URL}}/ok
+    body_file: request.xml
+    labels:
+      team: payments
+  - name: branches
+    url: {{.URL}}/fault
+    body_file: request.xml

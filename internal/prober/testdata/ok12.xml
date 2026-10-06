@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<env:Envelope xmlns:env="http://www.w3.org/2003/05/soap-envelope">
+  <env:Body>
+    <GetOrdersResponse xmlns="http://corp.example/">
+      <Order><Id>1</Id><Status>Open</Status></Order>
+      <Order><Id>2</Id><Status>Closed</Status></Order>
+    </GetOrdersResponse>
+  </env:Body>
+</env:Envelope>

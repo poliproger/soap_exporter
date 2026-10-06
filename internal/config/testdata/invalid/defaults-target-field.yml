@@ -1,0 +1,8 @@
+# want: defaults: url: not allowed in defaults (set it per target)
+# want: defaults: body_file: not allowed in defaults (set it per target)
+defaults:
+  url: https://orders.corp.example/Orders.svc
+  body_file: request.xml
+targets:
+  - name: orders
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'

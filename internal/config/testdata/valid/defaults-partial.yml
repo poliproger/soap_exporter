@@ -1,0 +1,17 @@
+# The defaults are incomplete on their own; every target completes them.
+defaults:
+  tls_config:
+    cert_file: certs/monitor.pem
+  oauth2:
+    client_id: monitor
+    token_url: https://auth.corp.example/token
+    proxy_connect_header:
+      X-Proxy-Source: [monitoring]
+targets:
+  - name: orders
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    tls_config:
+      key_file: certs/monitor.key
+    oauth2:
+      proxy_url: http://proxy.corp.example:3128

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- prolog comment -->
+<?xml-stylesheet type="text/xsl" href="status.xsl"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <soap:Header>
+    <t:Trace xmlns:t="urn:example:trace" t:id="42" soap:mustUnderstand="0">abc</t:Trace>
+  </soap:Header>
+  <soap:Body>
+    <GetStatusResponse xmlns="urn:example:status">
+      <Result xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="xsd:string">OK &amp; ready</Result>
+      <Items>
+        <Item id="1" xml:lang="en">one<![CDATA[ <raw> ]]>two<!-- note -->three&#x21;</Item>
+        <Item id="2"><?app hint="x"?></Item>
+        <Legacy xmlns=""><Row>no namespace</Row></Legacy>
+        <p:Other xmlns:p="urn:example:other"><p:Inner p:attr="v" attr="w"/></p:Other>
+        <Item id="3"/>
+      </Items>
+      <diffgr:diffgram xmlns:diffgr="urn:schemas-microsoft-com:xml-diffgram-v1">
+        <NewDataSet xmlns="http://tempuri.org/Status.xsd">
+          <Table diffgr:id="Table1"><Name>Сервис</Name></Table>
+        </NewDataSet>
+      </diffgr:diffgram>
+    </GetStatusResponse>
+  </soap:Body>
+</soap:Envelope>
+<!-- epilog comment -->

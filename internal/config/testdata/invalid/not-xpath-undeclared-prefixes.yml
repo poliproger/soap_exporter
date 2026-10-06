@@ -1,0 +1,7 @@
+# want: target "orders": expect.not_xpath[0]: namespace prefixes "o", "p" are not declared (declare them in expect.namespaces)
+targets:
+  - name: orders
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    expect:
+      not_xpath: ["//o:Status[@p:code = 'x:y']"]

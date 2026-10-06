@@ -1,0 +1,61 @@
+# HELP soap_probe_duration_seconds Total duration of probes that received an HTTP response.
+# TYPE soap_probe_duration_seconds histogram
+soap_probe_duration_seconds_bucket{target="core",team="core-banking",le="0.01"} 0
+soap_probe_duration_seconds_bucket{target="core",team="core-banking",le="0.025"} 0
+soap_probe_duration_seconds_bucket{target="core",team="core-banking",le="0.05"} 0
+soap_probe_duration_seconds_bucket{target="core",team="core-banking",le="0.1"} 0
+soap_probe_duration_seconds_bucket{target="core",team="core-banking",le="0.25"} 0
+soap_probe_duration_seconds_bucket{target="core",team="core-banking",le="0.5"} 1
+soap_probe_duration_seconds_bucket{target="core",team="core-banking",le="1"} 1
+soap_probe_duration_seconds_bucket{target="core",team="core-banking",le="2.5"} 2
+soap_probe_duration_seconds_bucket{target="core",team="core-banking",le="5"} 2
+soap_probe_duration_seconds_bucket{target="core",team="core-banking",le="10"} 2
+soap_probe_duration_seconds_bucket{target="core",team="core-banking",le="30"} 2
+soap_probe_duration_seconds_bucket{target="core",team="core-banking",le="60"} 2
+soap_probe_duration_seconds_bucket{target="core",team="core-banking",le="+Inf"} 2
+soap_probe_duration_seconds_sum{target="core",team="core-banking"} 1.812
+soap_probe_duration_seconds_count{target="core",team="core-banking"} 2
+# HELP soap_probe_failure_reason Failure reason of the last probe; absent while the target is healthy.
+# TYPE soap_probe_failure_reason gauge
+soap_probe_failure_reason{reason="soap_fault",target="core",team="core-banking"} 1
+# HELP soap_probe_http_status_code HTTP status code of the last probe, 0 if there was no response.
+# TYPE soap_probe_http_status_code gauge
+soap_probe_http_status_code{target="core",team="core-banking"} 500
+# HELP soap_probe_interval_seconds Configured probe interval in seconds.
+# TYPE soap_probe_interval_seconds gauge
+soap_probe_interval_seconds{target="core",team="core-banking"} 60
+# HELP soap_probe_last_timestamp_seconds Unix time when the last probe finished.
+# TYPE soap_probe_last_timestamp_seconds gauge
+soap_probe_last_timestamp_seconds{target="core",team="core-banking"} 1.7909424615e+09
+# HELP soap_probe_phase_duration_seconds Duration of each phase of the last probe.
+# TYPE soap_probe_phase_duration_seconds gauge
+soap_probe_phase_duration_seconds{phase="connect",target="core",team="core-banking"} 0.004
+soap_probe_phase_duration_seconds{phase="processing",target="core",team="core-banking"} 1.49
+soap_probe_phase_duration_seconds{phase="resolve",target="core",team="core-banking"} 0.001
+soap_probe_phase_duration_seconds{phase="transfer",target="core",team="core-banking"} 0.005
+# HELP soap_probe_response_size_bytes Response body size of the last probe in bytes.
+# TYPE soap_probe_response_size_bytes gauge
+soap_probe_response_size_bytes{target="core",team="core-banking"} 420
+# HELP soap_probe_success Whether the last probe passed all checks.
+# TYPE soap_probe_success gauge
+soap_probe_success{target="core",team="core-banking"} 0
+# HELP soap_probes_total Probes by result: success or the failure reason.
+# TYPE soap_probes_total counter
+soap_probes_total{result="auth",target="core",team="core-banking"} 0
+soap_probes_total{result="body_too_large",target="core",team="core-banking"} 0
+soap_probes_total{result="connect",target="core",team="core-banking"} 0
+soap_probes_total{result="dns",target="core",team="core-banking"} 0
+soap_probes_total{result="header",target="core",team="core-banking"} 0
+soap_probes_total{result="http",target="core",team="core-banking"} 0
+soap_probes_total{result="internal",target="core",team="core-banking"} 0
+soap_probes_total{result="invalid_envelope",target="core",team="core-banking"} 0
+soap_probes_total{result="regex",target="core",team="core-banking"} 0
+soap_probes_total{result="soap_fault",target="core",team="core-banking"} 1
+soap_probes_total{result="status",target="core",team="core-banking"} 0
+soap_probes_total{result="success",target="core",team="core-banking"} 1
+soap_probes_total{result="timeout",target="core",team="core-banking"} 0
+soap_probes_total{result="tls",target="core",team="core-banking"} 0
+soap_probes_total{result="xpath",target="core",team="core-banking"} 0
+# HELP soap_target_info Static information about the probed target; always 1.
+# TYPE soap_target_info gauge
+soap_target_info{auth="kerberos",soap_action="",soap_version="1.1",target="core",team="core-banking",url="http://core.corp.example/CoreService.asmx"} 1

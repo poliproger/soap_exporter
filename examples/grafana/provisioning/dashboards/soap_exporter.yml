@@ -1,0 +1,13 @@
+# Loads the dashboards mounted at /var/lib/grafana/dashboards (docker-compose.yml mounts
+# grafana-dashboard.json there). The dashboard picks its data source with a variable, so the
+# same file can also be imported in the Grafana UI.
+apiVersion: 1
+
+providers:
+  - name: soap_exporter
+    folder: SOAP
+    type: file
+    disableDeletion: true
+    allowUiUpdates: false
+    options:
+      path: /var/lib/grafana/dashboards

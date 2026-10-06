@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+  <s:Body>
+    <s:Fault>
+      <s:faultcode>s:Client</s:faultcode>
+      <s:faultstring><![CDATA[Invalid <request>]]></s:faultstring>
+    </s:Fault>
+  </s:Body>
+</s:Envelope>

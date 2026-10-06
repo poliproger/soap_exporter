@@ -1,0 +1,9 @@
+# A Kerberos target. monitor.keytab holds one AES256 key of monitor@CORP.EXAMPLE, derived
+# from a dummy password; --config.check parses it but contacts no KDC.
+targets:
+  - name: orders
+    url: http://orders.corp.example/Orders.asmx
+    body_file: request.xml
+    kerberos:
+      principal: monitor@CORP.EXAMPLE
+      keytab: monitor.keytab

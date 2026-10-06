@@ -1,0 +1,8 @@
+# want: target "orders": expect.namespaces.xml: the prefix xml can only be bound to http://www.w3.org/XML/1998/namespace
+targets:
+  - name: orders
+    url: https://orders.corp.example/Orders.svc
+    body: '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body/></soap:Envelope>'
+    expect:
+      namespaces:
+        xml: http://corp.example/
