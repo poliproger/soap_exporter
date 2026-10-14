@@ -2,7 +2,7 @@
 # the docker compose smoke test. It creates a realm and principals with random keys, exports one
 # keytab per principal and runs krb5kdc in the foreground. Not for production use.
 # Configuration: see the environment variables in entrypoint.sh.
-FROM debian:trixie-slim@sha256:a99cfc517144bc59b1978475ec53b46ecabec7e43635402ee5b77cc54cd1b20a
+FROM debian:trixie-slim@sha256:a29215f6a35e51e22adffa17f89e9d2ef06214e64a2bad10d765c46aea49f11f
 
 RUN apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
