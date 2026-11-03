@@ -1,6 +1,6 @@
 # The builder always runs on the build platform and cross-compiles for the target, so
 # multi-arch images build without emulation.
-FROM --platform=$BUILDPLATFORM golang:1.27-trixie@sha256:3b77fc618ec235a1ab412de7737f120dd507c57e8d87de4cbb7994fb94275ed5 AS build
+FROM --platform=$BUILDPLATFORM golang:1.27-trixie@sha256:c65ecfe613b539ac74c62a4c3b2c27e8f8a6076384c8f27e8a3c0f3be17cc385 AS build
 
 WORKDIR /src
 COPY go.mod go.sum ./
