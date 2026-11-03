@@ -1,7 +1,7 @@
 # The mock SOAP service of the end-to-end smoke test (test/e2e). The build context is the
 # repository root, so that the program builds with the module's go.mod and go.sum (gokrb5).
 # Base images as in the repository Dockerfile.
-FROM --platform=$BUILDPLATFORM golang:1.27-trixie@sha256:3b77fc618ec235a1ab412de7737f120dd507c57e8d87de4cbb7994fb94275ed5 AS build
+FROM --platform=$BUILDPLATFORM golang:1.27-trixie@sha256:c65ecfe613b539ac74c62a4c3b2c27e8f8a6076384c8f27e8a3c0f3be17cc385 AS build
 
 WORKDIR /src
 COPY go.mod go.sum ./
